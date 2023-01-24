@@ -1,14 +1,12 @@
-from typing import Union
-
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Query
+from schemas import Request, Word
+from typing import List
 
 app = FastAPI()
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get('/request')
+def get_book(test_list: List[str] = Query([])):
+    new_list = []
+    [new_list.append(x) for x in test_list if x not in new_list]
+    return new_list
+

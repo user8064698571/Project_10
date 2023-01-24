@@ -1,10 +1,9 @@
-from typing List
-
-from pydantic import BaseModel, validator
+from typing import List
+from pydantic import BaseModel
 from datetime import date
 
-class case_sensitive(BaseModel):
-    values: List[]
+class Word(BaseModel):
+    name: str
 
-    @validator('values')
-    def check_values(cls, ):
+class Request(BaseModel):
+    words: List[Word]
