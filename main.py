@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Query
-from schemas import Request, Word
+import collections
 from typing import List
 
 app = FastAPI()
 
-@app.get('/request')
-def get_book(test_list: List[str] = Query([])):
-    new_list = []
-    [new_list.append(x) for x in test_list if x not in new_list]
-    return new_list
-
+@app.post('/filter')
+def post_word(request: List[str] = Query([])):
+    dup_reqeust = [item for item, count in collections.Counter(request).items() if count > 1]
+    r1 = [x.lower() for x in request]
+    r2 = [x.lower() for x in dup_reqeust]
+    res = list(set(r1) ^ set(r2))
+    return res
