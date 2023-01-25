@@ -1,14 +1,13 @@
-
-
 from fastapi import FastAPI, Query, UploadFile, File, HTTPException
-import collections, shutil
+import collections, shutil, os
 from typing import List
+from starlette.responses import FileResponse
 
 app = FastAPI(
     title = "Оруджов Рамил"
 )
 
-@app.post('/filter')
+@app.post('/filter/case_sensitive')
 def post_word(request: List[str] = Query([])):
     dup_reqeust = [item for item, count in collections.Counter(request).items() if count > 1]
     r1 = [x.lower() for x in request]
@@ -17,27 +16,19 @@ def post_word(request: List[str] = Query([])):
     return res
 
 @app.post("/upload/<file_name>")
-def Data_aggregation(file: List[UploadFile] = File(...)):
-    error_files = []
-    for ing in file:
-        if ing.filename.endswith((".csv", ".json")):
-            with open(f'{ing.filename}', 'wb') as buffer:
-                shutil.copyfileobj(ing.file, buffer)
-            return {"file": ing}
-        else:
-            raise HTTPException(status_code=415, detail=error_files)
-   
+def Data_aggregation(file: UploadFile = File(...)):
+    error_files = "Файл имеет не подходящий формат. Используйте форматы: .csv, .json"
+    if file.filename.endswith((".csv", ".json")):
+        with open(f'{file.filename}', 'wb') as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {"file": file}
+    else:
+        raise HTTPException(status_code=415, detail=error_files)
 
-
-
-# @app.post("/load/{file_name}")
-# def get_file(file_name):
-#     return [file_name for file_name in
-
-
-# @app.exception_handler(ValidationError)
-# async def validation_exception_handler(request: Request, exc: ValidationError):
-#     return JSONResponse(
-#         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#         content=jsonable_encoder({"detail": exc.errors()}),
-#     )
+@app.post("/load/{filename}")
+def load_file(filename: str):
+    path = os.path.join(filename)
+    if os.path.isfile(path):
+        return FileResponse(path)
+    else:
+        raise HTTPException(status_code=404, detail="file not found: " + filename)
