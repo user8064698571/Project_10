@@ -20,12 +20,12 @@ def post_word(request: List[str] = Query([])):
 def Data_aggregation(file: List[UploadFile] = File(...)):
     error_files = []
     for ing in file:
-        with open(f'{ing.filename}', 'wb') as buffer:
-            if  ing.filename.endswith((".csv", ".json")):
+        if ing.filename.endswith((".csv", ".json")):
+            with open(f'{ing.filename}', 'wb') as buffer:
                 shutil.copyfileobj(ing.file, buffer)
-                return {"file": ing}
-            else:
-                 raise HTTPException(status_code=415, detail=error_files)
+            return {"file": ing}
+        else:
+            raise HTTPException(status_code=415, detail=error_files)
    
 
 
