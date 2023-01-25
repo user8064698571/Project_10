@@ -1,8 +1,12 @@
-from fastapi import FastAPI, Query, UploadFile, File
+
+
+from fastapi import FastAPI, Query, UploadFile, File, HTTPException
 import collections, shutil
 from typing import List
 
-app = FastAPI()
+app = FastAPI(
+    title = "Оруджов Рамил"
+)
 
 @app.post('/filter')
 def post_word(request: List[str] = Query([])):
@@ -13,8 +17,27 @@ def post_word(request: List[str] = Query([])):
     return res
 
 @app.post("/upload/<file_name>")
-async def Data_aggregation(file: List[UploadFile] = File(...)):
+def Data_aggregation(file: List[UploadFile] = File(...)):
+    error_files = []
     for ing in file:
         with open(f'{ing.filename}', 'wb') as buffer:
-            shutil.copyfileobj(ing.file, buffer)
-    return {"file_name": "good"}
+            if  ing.filename.endswith((".csv", ".json")):
+                shutil.copyfileobj(ing.file, buffer)
+                return {"file": ing}
+            else:
+                 raise HTTPException(status_code=415, detail=error_files)
+   
+
+
+
+# @app.post("/load/{file_name}")
+# def get_file(file_name):
+#     return [file_name for file_name in
+
+
+# @app.exception_handler(ValidationError)
+# async def validation_exception_handler(request: Request, exc: ValidationError):
+#     return JSONResponse(
+#         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+#         content=jsonable_encoder({"detail": exc.errors()}),
+#     )
