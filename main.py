@@ -18,4 +18,3 @@ async def Data_aggregation(file: List[UploadFile] = File(...)):
         with open(f'{ing.filename}', 'wb') as buffer:
             shutil.copyfileobj(ing.file, buffer)
     return {"file_name": "good"}
-
